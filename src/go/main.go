@@ -5,11 +5,17 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 )
 
 func main() {
-	// Make HTTP GET request
-	response, err := http.Get("https://www.devdungeon.com")
+	// Create HTTP client with timeout
+	client := &http.Client{
+		Timeout: 30 * time.Second,
+	}
+
+	// Make request
+	response, err := client.Get("https://www.devdungeon.com")
 	if err != nil {
 		log.Fatal(err)
 	}
