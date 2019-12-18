@@ -1,3 +1,4 @@
+// https://www.devdungeon.com/content/web-scraping-go#set_http_headers_change_user_agent
 package main
 
 import (
@@ -14,18 +15,24 @@ func main() {
 		Timeout: 30 * time.Second,
 	}
 
+	// Create and modify HTTP request before sending
+	request, err := http.NewRequest("GET", "https://www.devdungeon.com", nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	request.Header.Set("User-Agent", "Not Firefox")
+
 	// Make request
-	response, err := client.Get("https://www.devdungeon.com")
+	response, err := client.Do(request)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer response.Body.Close()
 
 	// Copy data from the response to standard output
-	n, err := io.Copy(os.Stdout, response.Body)
+	_, err = io.Copy(os.Stdout, response.Body)
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	log.Println("Number of bytes copied to STDOUT:", n)
 }
