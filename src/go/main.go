@@ -1,38 +1,42 @@
-// https://www.devdungeon.com/content/web-scraping-go#find_all_links_on_page
+// https://www.devdungeon.com/content/web-scraping-go#parse_urls
 package main
 
 import (
 	"fmt"
 	"log"
-	"net/http"
-
-	"github.com/PuerkitoBio/goquery"
+	"net/url"
 )
 
-// This will get called for each HTML element found
-func processElement(index int, element *goquery.Selection) {
-	// See if the href attribute exists on the element
-	href, exists := element.Attr("href")
-	if exists {
-		fmt.Println(href)
-	}
-}
-
 func main() {
-	// Make HTTP request
-	response, err := http.Get("https://www.devdungeon.com")
+	// Parse a complex URL
+	complexURL := "https://www.example.com/path/to/?query=123&this=that#fragment"
+	parsedURL, err := url.Parse(complexURL)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer response.Body.Close()
 
-	// Create a goquery document from the HTTP response
-	document, err := goquery.NewDocumentFromReader(response.Body)
-	if err != nil {
-		log.Fatal("Error loading HTTP response body.", err)
-	}
+	// Print out URL pieces
+	fmt.Println("Scheme: " + parsedURL.Scheme)
+	fmt.Println("Host: " + parsedURL.Host)
+	fmt.Println("Path: " + parsedURL.Path)
+	fmt.Println("Query string: " + parsedURL.RawQuery)
+	fmt.Println("Fragment: " + parsedURL.Fragment)
 
-	// Find all links and process them with the function
-	// defined earlier
-	document.Find("a").Each(processElement)
+	// Get the query key/values as a map
+	fmt.Println("\nQuery values:")
+	queryMap := parsedURL.Query()
+	fmt.Println(queryMap)
+
+	// Craft a new URL from scratch
+	var customURL url.URL
+	customURL.Scheme = "https"
+	customURL.Host = "google.com"
+	newQueryValues := customURL.Query()
+	newQueryValues.Set("key1", "value1")
+	newQueryValues.Set("key2", "value2")
+	customURL.Fragment = "bookmarkLink"
+	customURL.RawQuery = newQueryValues.Encode()
+
+	fmt.Println("\nCustom URL:")
+	fmt.Println(customURL.String())
 }
