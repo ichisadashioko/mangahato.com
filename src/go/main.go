@@ -1,42 +1,33 @@
-// https://www.devdungeon.com/content/web-scraping-go#parse_urls
+// https://www.devdungeon.com/content/web-scraping-go#find_all_images_on_page
 package main
 
 import (
 	"fmt"
 	"log"
-	"net/url"
+	"net/http"
+
+	"github.com/PuerkitoBio/goquery"
 )
 
 func main() {
-	// Parse a complex URL
-	complexURL := "https://www.example.com/path/to/?query=123&this=that#fragment"
-	parsedURL, err := url.Parse(complexURL)
+	// Make HTTP request
+	response, err := http.Get("https://www.devdungeon.com")
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer response.Body.Close()
 
-	// Print out URL pieces
-	fmt.Println("Scheme: " + parsedURL.Scheme)
-	fmt.Println("Host: " + parsedURL.Host)
-	fmt.Println("Path: " + parsedURL.Path)
-	fmt.Println("Query string: " + parsedURL.RawQuery)
-	fmt.Println("Fragment: " + parsedURL.Fragment)
+	// Create a goquery document from the HTTP response
+	document, err := goquery.NewDocumentFromReader(response.Body)
+	if err != nil {
+		log.Fatal("Error loading HTTP response body.", err)
+	}
 
-	// Get the query key/values as a map
-	fmt.Println("\nQuery values:")
-	queryMap := parsedURL.Query()
-	fmt.Println(queryMap)
-
-	// Craft a new URL from scratch
-	var customURL url.URL
-	customURL.Scheme = "https"
-	customURL.Host = "google.com"
-	newQueryValues := customURL.Query()
-	newQueryValues.Set("key1", "value1")
-	newQueryValues.Set("key2", "value2")
-	customURL.Fragment = "bookmarkLink"
-	customURL.RawQuery = newQueryValues.Encode()
-
-	fmt.Println("\nCustom URL:")
-	fmt.Println(customURL.String())
+	// Find and print image URLs
+	document.Find("img").Each(func(index int, element *goquery.Selection) {
+		imgSrc, exists := element.Attr("src")
+		if exists {
+			fmt.Println(imgSrc)
+		}
+	})
 }
