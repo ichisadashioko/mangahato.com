@@ -1,4 +1,3 @@
-// https://www.devdungeon.com/content/web-scraping-go#find_all_images_on_page
 package main
 
 import (
@@ -9,25 +8,32 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
+const BASE_URL = "https://mangahato.com"
+
 func main() {
-	// Make HTTP request
-	response, err := http.Get("https://www.devdungeon.com")
+	url := BASE_URL + "/manga-sakura-sakura-morishige-raw.html"
+	res, err := http.Get(url)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer response.Body.Close()
+	defer res.Body.Close()
 
-	// Create a goquery document from the HTTP response
-	document, err := goquery.NewDocumentFromReader(response.Body)
+	// create goquery document from the HTTP response
+	document, err := goquery.NewDocumentFromReader(res.Body)
 	if err != nil {
-		log.Fatal("Error loading HTTP response body.", err)
+		log.Fatal(err)
 	}
 
-	// Find and print image URLs
-	document.Find("img").Each(func(index int, element *goquery.Selection) {
-		imgSrc, exists := element.Attr("src")
+	mangaName := document.Find(".manga-info h1").First().Text()
+	fmt.Println("Manga name:", mangaName)
+
+	// find all chapter URLs
+	s := document.Find("#tab-chapper tbody tr")
+	fmt.Println("Number of chapters:", len(s.Nodes))
+	s.Each(func(index int, element *goquery.Selection) {
+		href, exists := element.Find("td a").First().Attr("href")
 		if exists {
-			fmt.Println(imgSrc)
+			fmt.Println(index, href)
 		}
 	})
 }
