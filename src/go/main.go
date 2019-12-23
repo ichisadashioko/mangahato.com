@@ -30,10 +30,16 @@ func main() {
 	// find all chapter URLs
 	s := document.Find("#tab-chapper tbody tr")
 	fmt.Println("Number of chapters:", len(s.Nodes))
+
+	chapterRelativeURLs := make([]string, len(s.Nodes))
+
 	s.Each(func(index int, element *goquery.Selection) {
 		href, exists := element.Find("td a").First().Attr("href")
 		if exists {
-			fmt.Println(index, href)
+			// fmt.Println(index, href)
+			chapterRelativeURLs[index] = href
 		}
 	})
+
+	fmt.Println(chapterRelativeURLs)
 }
