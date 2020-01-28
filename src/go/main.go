@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -19,12 +18,12 @@ const mangahato_url = "https://mangahato.com"
 func main() {
 	manga := "manga-sakura-sakura-morishige-raw.html"
 	url := mapURL(manga)
-	saveDir := filepath.Join(".", BaseFilename(manga))
+	saveDir := filepath.Join(".", baseFilename(manga))
 	fmt.Println(saveDir)
 	downloadManga(url, saveDir)
 }
 
-func BaseFilename(path string) string {
+func baseFilename(path string) string {
 	filename := filepath.Base(path)
 	ext := filepath.Ext(filename)
 	return strings.TrimSuffix(filename, ext)
@@ -66,7 +65,7 @@ func downloadManga(mangaURL string, saveDir string) {
 		fmt.Println(i, chapterRelativeURLs[i])
 		chapterDir := filepath.Join(saveDir, padLeft(strconv.Itoa(i), 3, "0"))
 		downloadChapter(mapURL(chapterRelativeURLs[i]), chapterDir)
-		break
+		// break
 	}
 }
 
@@ -165,7 +164,8 @@ func mapURL(documentFile string) string {
 
 func check(e error) {
 	if e != nil {
-		log.Fatal(e)
+		// log.Fatal(e)
+		fmt.Println(e)
 	}
 }
 
